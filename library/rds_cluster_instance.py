@@ -247,7 +247,7 @@ def create_db_instance(module, client, **params):
 
     tags = None
     if params['tags'] is not None:
-        tags = [{'Key': k, 'Value': v} for k, v in params['tags'].iteritems()]
+        tags = [{'Key': k, 'Value': v} for k, v in params['tags'].items()]
 
     try:
         check_instance = client.describe_db_instances(DBInstanceIdentifier=params['instance_id'])
@@ -258,7 +258,7 @@ def create_db_instance(module, client, **params):
         # Determine instance modifications to make
         instance = check_instance['DBInstances'][0]
         modify_args = dict()
-        for opt, val in api_args.iteritems():
+        for opt, val in api_args.items():
             if opt == 'DBParameterGroupName':
                 if [g['DBParameterGroupName'] for g in instance['DBParameterGroups']] != [val,]:
                     modify_args[opt] = val
@@ -298,7 +298,7 @@ def create_db_instance(module, client, **params):
 
             try:
                 result = client.create_db_instance(**api_args)
-            except (botocore.exceptions.ClientError, boto.exception.BotoServerError), e:
+            except (botocore.exceptions.ClientError, boto.exception.BotoServerError) as e:
                 module.fail_json(msg=str(e), api_args=api_args)
 
         else:
@@ -317,7 +317,7 @@ def create_db_instance(module, client, **params):
                     if check_instance['DBInstances'][0]['DBInstanceStatus'].lower() == 'available':
                         ready = True
 
-            except (botocore.exceptions.ClientError, boto.exception.BotoServerError), e:
+            except (botocore.exceptions.ClientError, boto.exception.BotoServerError) as e:
                 pass
 
             if not ready:
@@ -373,7 +373,7 @@ def main():
         region, ec2_url, aws_connect_kwargs = get_aws_connection_info(module, boto3=True)
         rds = boto3_conn(module, conn_type='client', resource='rds', region=region, endpoint=ec2_url, **aws_connect_kwargs)
 
-    except botocore.exceptions.ClientError, e:
+    except botocore.exceptions.ClientError as e:
         module.fail_json(msg="Boto3 Client Error - " + str(e))
 
     if module.params.get('state') == 'present':

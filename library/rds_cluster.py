@@ -148,7 +148,7 @@ def create_cluster(module, client, **params):
     if params['vpc_security_group_ids'] is not None:
         api_args['VpcSecurityGroupIds'] = params['vpc_security_group_ids']
     if params['tags'] is not None:
-        api_args['Tags'] = [dict(Key=k, Value=v) for k, v in params['tags'].iteritems()]
+        api_args['Tags'] = [dict(Key=k, Value=v) for k, v in params['tags'].items()]
 
     try:
         check_cluster = client.describe_db_clusters(DBClusterIdentifier=params['cluster_id'])
@@ -159,7 +159,7 @@ def create_cluster(module, client, **params):
         # Determine cluster modifications to make
         cluster = check_cluster['DBClusters'][0]
         modify_args = dict()
-        for opt, val in api_args.iteritems():
+        for opt, val in api_args.items():
             if opt == 'VpcSecurityGroupIds':
                 if sorted([g['VpcSecurityGroupId'] for g in cluster['VpcSecurityGroups']]) != sorted(val):
                     modify_args[opt] = val
@@ -219,7 +219,7 @@ def create_cluster(module, client, **params):
                     if check_cluster['DBClusters'][0]['Status'].lower() == 'available':
                         ready = True
 
-            except (botocore.exceptions.ClientError, boto.exception.BotoServerError), e:
+            except (botocore.exceptions.ClientError, boto.exception.BotoServerError) as e:
                 pass
 
             if not ready:
@@ -265,7 +265,7 @@ def main():
     try:
         region, ec2_url, aws_connect_kwargs = get_aws_connection_info(module, boto3=True)
         rds = boto3_conn(module, conn_type='client', resource='rds', region=region, endpoint=ec2_url, **aws_connect_kwargs)
-    except botocore.exceptions.ClientError, e:
+    except botocore.exceptions.ClientError as e:
         module.fail_json(msg="Boto3 Client Error - " + str(e))
 
     if module.params.get('state') == 'present':

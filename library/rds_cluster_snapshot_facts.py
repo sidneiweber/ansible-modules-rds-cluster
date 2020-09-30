@@ -120,7 +120,7 @@ def find_snapshot_facts(module, client, snapshot_id=None, cluster_id=None, max_r
 
     try:
         snapshots = client.describe_db_cluster_snapshots(**api_args)
-    except (botocore.exceptions.ClientError, boto.exception.BotoServerError), e:
+    except (botocore.exceptions.ClientError, boto.exception.BotoServerError) as e:
         module.fail_json(msg=str(e), api_args=api_args)
 
     results = []
@@ -227,7 +227,7 @@ def main():
     try:
         region, ec2_url, aws_connect_kwargs = get_aws_connection_info(module, boto3=True)
         rds = boto3_conn(module, conn_type='client', resource='rds', region=region, endpoint=ec2_url, **aws_connect_kwargs)
-    except botocore.exceptions.ClientError, e:
+    except botocore.exceptions.ClientError as e:
         module.fail_json(msg="Boto3 Client Error - " + str(e))
 
     find_snapshot_facts(
